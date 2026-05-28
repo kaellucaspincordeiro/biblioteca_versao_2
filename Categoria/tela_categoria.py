@@ -58,7 +58,7 @@ def montar_tela_categoria(container, funcao_voltar):
     scroll.config(command=tabela.yview)
 
     tabela.heading("id", text="ID")
-    tabela.heading("categoria", text="Nome da Categoira")
+    tabela.heading("categoria", text="Nome da Categoria")
 
     tabela.column("id", width=50, anchor="center")
     tabela.column("categoria", width=50, anchor="center")
