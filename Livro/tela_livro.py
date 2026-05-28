@@ -160,9 +160,9 @@ def montar_tela_livro(container, funcao_voltar):
     tabela.heading("id", text="ID")
     tabela.heading("livro", text="Nome do Livro")
     tabela.heading("status", text="Status")
-    tabela.heading("editora", text="ID Editora")
-    tabela.heading("categoria", text="ID Categoria")
-    tabela.heading("autor", text="ID Autor")
+    tabela.heading("editora", text="Editora")
+    tabela.heading("categoria", text="Categoria")
+    tabela.heading("autor", text="Autor")
 
     tabela.column("id", width=50, anchor="center")
     tabela.column("livro", width=50, anchor="center")
@@ -219,14 +219,6 @@ def montar_tela_livro(container, funcao_voltar):
         editora = valores[3]
         categoria = valores[4]
         autor = valores[5]
-
-        map_editora = {id_editora: nome_editora for nome_editora, id_editora in mapeamento_editora.items()}
-        map_categoria = {id_categoria: nome_categoria for nome_categoria, id_categoria in mapeamento_categoria.items()}
-        map_autor = {id_autor: nome_autor for nome_autor, id_autor in mapeamento_autor.items()}
-
-        editora = map_editora[int(editora)]
-        categoria = map_categoria[int(categoria)]
-        autor = map_autor[int(autor)]
 
         janela_livro = tk.Toplevel(container)
         janela_livro.title("Atualizar Livro")
