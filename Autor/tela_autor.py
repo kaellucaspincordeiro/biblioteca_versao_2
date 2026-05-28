@@ -127,7 +127,7 @@ def montar_tela_autor(container, funcao_voltar):
                 messagebox.showwarning("Aviso", "Preencha todos os campos!")
                 return
 
-            bd.db_atualizar_categoria(id_aut, nome)
+            bd.db_atualizar_autor(id_aut, nome)
             messagebox.showinfo("Sucesso", "Autor(a) atualizado(a) com sucesso!")
 
             janela_autor.destroy()
