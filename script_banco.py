@@ -25,7 +25,8 @@ cliente = """
                 nome_cliente VARCHAR(100) NOT NULL,
                 telefone VARCHAR(50),
                 endereco VARCHAR(50) NOT NULL,
-                cpf VARCHAR(50) NOT NULL
+                cpf VARCHAR(50) NOT NULL,
+                status VARCHAR(50) NOT NULL
           )
           """
 
@@ -38,7 +39,7 @@ emprestimo = """
                 data_emprestimo VARCHAR(50),
                 data_devolucao VARCHAR(50),
                 CONSTRAINT fk_emprestimo_cliente FOREIGN KEY (id_cliente) REFERENCES cliente (id_cliente),
-                CONSTRAINT fk_emprestimo_cliente FOREIGN KEY (id_livro) REFERENCES livro (id_livro)    
+                CONSTRAINT fk_emprestimo_livro FOREIGN KEY (id_livro) REFERENCES livro (id_livro)    
              )
              """
 
