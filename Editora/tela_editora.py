@@ -17,7 +17,7 @@ def montar_tela_editora(container, funcao_voltar):
     ent_nome = tk.Entry(container, width=40)
     ent_nome.grid(row=2, column=0, pady=(0, 12))
 
-    def salvar_autor():
+    def salvar_editora():
         nome_editora = ent_nome.get()
         if nome_editora.strip():
             bd.db_cadastrar_editora(nome_editora)
@@ -27,7 +27,7 @@ def montar_tela_editora(container, funcao_voltar):
         else:
             messagebox.showwarning("Aviso", "Preencha todos os campos!")
 
-    tk.Button(container, text="Cadastrar Editoras", command=salvar_autor, bg="green", fg="white").grid(row=3, column=0, pady=(0, 18))
+    tk.Button(container, text="Cadastrar Editoras", command=salvar_editora, bg="green", fg="white").grid(row=3, column=0, pady=(0, 18))
 
     # --- Lista de Livros ---
     tk.Label(container, text="Editoras Cadastradas:", font=("Arial", 10, "bold")).grid(row=4, column=0)
@@ -126,7 +126,7 @@ def montar_tela_editora(container, funcao_voltar):
                 messagebox.showwarning("Aviso", "Preencha todos os campos!")
                 return
 
-            bd.db_atualizar_categoria(id_edi, nome)
+            bd.db_atualizar_editora(id_edi, nome)
             messagebox.showinfo("Sucesso", "Editora atualizada com sucesso!")
 
             janela_editora.destroy()
