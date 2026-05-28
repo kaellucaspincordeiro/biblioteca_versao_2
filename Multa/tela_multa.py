@@ -89,7 +89,7 @@ def montar_tela_multa(container, funcao_voltar):
 
     tabela.heading("id", text="ID")
     tabela.heading("nome", text="Nome da Multa")
-    tabela.heading("emprestimo", text="ID Empréstimo")
+    tabela.heading("emprestimo", text="Nome do Empréstimo")
 
     tabela.column("id", width=50, anchor="center")
     tabela.column("nome", width=50, anchor="center")
@@ -138,10 +138,6 @@ def montar_tela_multa(container, funcao_voltar):
         id_mul = valores[0]
         nome_multa = valores[1]
         emprestimo = valores[2]
-
-        map_emprestimo = {id_emprestimo: nome_emprestimo for nome_emprestimo, id_emprestimo in mapeamento_emprestimo.items()}
-
-        emprestimo = map_emprestimo[int(emprestimo)]
 
         janela_multa = tk.Toplevel(container)
         janela_multa.title("Atualizar Autor(a)")
