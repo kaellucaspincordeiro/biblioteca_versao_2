@@ -102,10 +102,10 @@ def db_atualizar_autor(id_autor, nome):
     conn.commit()
     conn.close() 
 
-def db_cadastrar_cliente(nome, telefone, endereco, cpf):
+def db_cadastrar_cliente(nome, telefone, endereco, cpf, status_cliente):
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO cliente (nome_cliente, telefone, endereco, cpf) VALUES (?, ?, ?, ?)", (nome, telefone, endereco, cpf))
+    cursor.execute("INSERT INTO cliente (nome_cliente, telefone, endereco, cpf, status) VALUES (?, ?, ?, ?, ?)", (nome, telefone, endereco, cpf, status_cliente))
     conn.commit()
     conn.close()
 
@@ -124,10 +124,10 @@ def db_deletar_cliente(id_cliente):
     conn.commit()
     conn.close()
 
-def db_atualizar_cliente(id_cliente, nome, telefone, endereco, cpf):
+def db_atualizar_cliente(id_cliente, nome, telefone, endereco, cpf, status_cliente):
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute("UPDATE cliente SET nome_cliente = ?, telefone = ?, endereco = ?, cpf = ? WHERE id_cliente = ?", (nome, telefone, endereco, cpf, id_cliente))
+    cursor.execute("UPDATE cliente SET nome_cliente = ?, telefone = ?, endereco = ?, cpf = ?, status = ? WHERE id_cliente = ?", (nome, telefone, endereco, cpf, status_cliente, id_cliente))
     conn.commit()
     conn.close()  
 
@@ -141,7 +141,18 @@ def db_cadastrar_livro(nome, status, id_editora, id_categoria, id_autor):
 def db_listar_livros():
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM livro")
+    cursor.execute("""
+                   SELECT livro.id_livro,
+                          livro.nome_livro,
+                          livro.status,
+                          editora.nome_editora,
+                          categoria.nome_categoria,
+                          autor.nome_autor
+                   FROM livro
+                   INNER JOIN editora ON livro.id_editora = editora.id_editora
+                   INNER JOIN categoria ON livro.id_categoria = categoria.id_categoria
+                   INNER JOIN autor ON livro.id_autor = autor.id_autor
+                  """)
     dados = cursor.fetchall()
     conn.close()
     return dados
@@ -170,7 +181,17 @@ def db_cadastrar_emprestimo(nome, id_cliente, id_livro, data_emprestimo, data_de
 def db_listar_emprestimos():
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM emprestimo")
+    cursor.execute("""
+                   SELECT emprestimo.id_emprestimo,
+                          emprestimo.nome_emprestimo,
+                          cliente.nome_cliente,
+                          livro.nome_livro,
+                          emprestimo.data_emprestimo,
+                          emprestimo.data_devolucao
+                   FROM emprestimo
+                   INNER JOIN cliente ON emprestimo.id_cliente = cliente.id_cliente
+                   INNER JOIN livro ON emprestimo.id_livro = livro.id_livro
+                  """)
     dados = cursor.fetchall()
     conn.close()
     return dados
@@ -199,7 +220,13 @@ def db_cadastrar_multa(nome, id_emprestimo):
 def db_listar_multas():
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM multas")
+    cursor.execute("""
+                   SELECT multas.id_multa,
+                          multas.nome_multa,
+                          emprestimo.nome_emprestimo
+                   FROM multas
+                   INNER JOIN emprestimo ON multas.id_emprestimo = emprestimo.id_emprestimo
+                  """)
     dados = cursor.fetchall()
     conn.close()
     return dados
@@ -217,3 +244,44 @@ def db_atualizar_multas(id_multa, nome, emprestimo):
     cursor.execute("UPDATE multas SET nome_multa = ?, id_emprestimo = ? WHERE id_multa = ?", (nome, emprestimo, id_multa))
     conn.commit()
     conn.close()
+
+def livro_status(id_livro):
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute("SELECT status FROM livro WHERE id_livro = ?", (id_livro,))
+
+    dados = cursor.fetchone()
+    conn.close()
+
+    if dados:    
+        return dados[0]
+    return None
+
+def atualizar_status_emprestimo_livro(id_livro, status):
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE livro SET status = ? WHERE id_livro = ?", (status, id_livro,))
+
+    conn.commit()
+    conn.close()
+
+def atualizar_status_devolvido_livro(id_livro, status):
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE livro SET status = ? WHERE id_livro = ?", (status, id_livro,))
+
+    conn.commit()
+    conn.close()
+
+def procurar_status_cliente(id_cliente):
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute("SELECT status FROM cliente WHERE id_cliente = ?", (id_cliente,))
+
+    dados = cursor.fetchone()
+    conn.close()
+
+    if dados:    
+        return dados[0]
+    return None
+
