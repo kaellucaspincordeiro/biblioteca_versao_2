@@ -157,8 +157,6 @@ def montar_tela_emprestimo(container, funcao_voltar):
         if status == "Devolvido":
             messagebox.showwarning("Aviso", "Este empréstimo foi devolvido!")
             return
-        
-        bd.status_emprestado_para_devolvido(id_emprestimo)
 
         previsao = datetime.strptime(data_devolucao, "%d/%m/%Y")
         data_hoje = datetime.now()
@@ -181,7 +179,7 @@ def montar_tela_emprestimo(container, funcao_voltar):
         else:
             messagebox.showinfo("Livro Devolvido", "Você devolveu dentro do prazo")
 
-        bd.atualizar_status_emprestimo(id_emprestimo, "Devolvido")
+        bd.atualizar_status_emprestimo(id_emprestimo)
         bd.atualizar_status_livro(id_livro, "Disponível")
 
         atualizar_lista()
