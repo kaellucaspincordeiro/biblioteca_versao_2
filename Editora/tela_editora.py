@@ -6,16 +6,22 @@ def montar_tela_editora(container, funcao_voltar):
     for widget in container.winfo_children():
         widget.destroy()
 
+    container.grid_columnconfigure(0, weight=1)
+    container.grid_rowconfigure(6, weight=1)
+
 # --- BOTÃO VOLTAR ---
     # Ele fica no topo para fácil acesso
     tk.Button(container, text="← Voltar ao Menu", command=funcao_voltar, bg="#ccc").grid(row=0, column=0, sticky="w", padx=10, pady=5)
 
+    frame_editora = tk.Frame(container)
+    frame_editora.grid(row=1, column=0, pady=(5,5))
+
     # --- Título da Tela ---
-    tk.Label(container, text="Cadastro das Editoras", font=("Arial", 14, "bold")).grid(row=0, column=0, pady=(0, 20))
+    tk.Label(frame_editora, text="Cadastro das Editoras", font=("Arial", 14, "bold")).grid(row=0, column=0, pady=(0, 10))
     # --- Formulário de Cadastro ---
-    tk.Label(container, text="Nome da Editora:", font=("Arial", 10, "bold")).grid(row=1, column=0, pady=(0, 8))
-    ent_nome = tk.Entry(container, width=40)
-    ent_nome.grid(row=2, column=0, pady=(0, 12))
+    tk.Label(frame_editora, text="Nome da Editora:", font=("Arial", 10, "bold")).grid(row=1, column=0, pady=(0, 2))
+    ent_nome = tk.Entry(frame_editora, width=40)
+    ent_nome.grid(row=2, column=0, pady=(0, 5))
 
     def salvar_editora():
         nome_editora = ent_nome.get()
@@ -27,15 +33,15 @@ def montar_tela_editora(container, funcao_voltar):
         else:
             messagebox.showwarning("Aviso", "Preencha todos os campos!")
 
-    tk.Button(container, text="Cadastrar Editoras", command=salvar_editora, bg="green", fg="white").grid(row=3, column=0, pady=(0, 18))
+    tk.Button(frame_editora, text="Cadastrar Editoras", command=salvar_editora, bg="green", fg="white").grid(row=3, column=0, pady=(4,5))
 
     # --- Lista de Livros ---
-    tk.Label(container, text="Editoras Cadastradas:", font=("Arial", 10, "bold")).grid(row=4, column=0)
+    tk.Label(frame_editora, text="Editoras Cadastradas:", font=("Arial", 10, "bold")).grid(row=4, column=0, pady=(4,5))
     
     frame_tabela = tk.Frame(container)
-    frame_tabela.grid(row=5, column=0, pady=10, padx=20, sticky="nsew")
+    frame_tabela.grid(row=5, column=0, pady=(10,5), padx=20, sticky="nsew")
 
-    container.grid_rowconfigure(5, weight=1)
+    container.grid_rowconfigure(0, weight=1)
     container.grid_columnconfigure(0, weight=1)
 
     scroll = ttk.Scrollbar(frame_tabela)
@@ -61,7 +67,7 @@ def montar_tela_editora(container, funcao_voltar):
     tabela.column("editora", width=50, anchor="center")
 
     frame_botoes = tk.Frame(container)
-    frame_botoes.grid(row=7, column=0, pady=10)
+    frame_botoes.grid(row=7, column=0, pady=(5,15))
     frame_botoes.grid_columnconfigure(0, minsize=150)
     frame_botoes.grid_columnconfigure(1, minsize=150)
 
