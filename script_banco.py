@@ -23,7 +23,7 @@ cliente = """
           CREATE TABLE IF NOT EXISTS cliente (
                 id_cliente INTEGER PRIMARY KEY AUTOINCREMENT, 
                 nome_cliente VARCHAR(100) NOT NULL,
-                telefone VARCHAR(50),
+                telefone VARCHAR(50) NOT NULL,
                 endereco VARCHAR(50) NOT NULL,
                 cpf VARCHAR(50) NOT NULL,
                 status VARCHAR(50) NOT NULL
@@ -36,8 +36,9 @@ emprestimo = """
                 nome_emprestimo VARCHAR(100) NOT NULL,
                 id_cliente INTEGER,
                 id_livro INTEGER,
-                data_emprestimo VARCHAR(50),
-                data_devolucao VARCHAR(50),
+                data_emprestimo TEXT NOT NULL,
+                data_devolucao TEXT NOT NULL,
+                status VARCHAR(50) NOT NULL,
                 CONSTRAINT fk_emprestimo_cliente FOREIGN KEY (id_cliente) REFERENCES cliente (id_cliente),
                 CONSTRAINT fk_emprestimo_livro FOREIGN KEY (id_livro) REFERENCES livro (id_livro)    
              )
@@ -58,10 +59,12 @@ livro = """
         """
 
 multa = """
-        CREATE TABLE IF NOT EXISTS multas (
-            id_multa INTEGER PRIMARY KEY AUTOINCREMENT, 
-            nome_multa VARCHAR(100) NOT NULL,
-            id_emprestimo INTEGER,
+        CREATE TABLE IF NOT EXISTS multa (
+            id_multa INTEGER PRIMARY KEY AUTOINCREMENT,
+            id_emprestimo INTEGER UNIQUE,
+            dias_atrasos INTEGER NOT NULL,
+            total_multa DECIMAL(10,2) NOT NULL,
+            data_multa TEXT NOT NULL,
             CONSTRAINT fk_multa_emprestimo FOREIGN KEY (id_emprestimo) REFERENCES emprestimo (id_emprestimo) 
         )
         """
