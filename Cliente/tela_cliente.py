@@ -11,7 +11,7 @@ def montar_tela_cliente(container, funcao_voltar):
 # --- BOTÃO VOLTAR ---
     # Ele fica no topo para fácil acesso
     tk.Button(container, text="← Voltar ao Menu", command=funcao_voltar, bg="#ccc").grid(row=0, column=0, sticky="w", padx=10, pady=5)
-
+    
     frame_cliente = tk.Frame(container)
     frame_cliente.grid(row=1, column=0, pady=10)
 
@@ -159,7 +159,7 @@ def montar_tela_cliente(container, funcao_voltar):
 
         janela_cliente = tk.Toplevel(container)
         janela_cliente.title("Atualizar Cliente")
-        janela_cliente.geometry("350x430")
+        janela_cliente.geometry("350x250")
         janela_cliente.grab_set()
 
         janela_cliente.grid_columnconfigure(0, weight=1)
