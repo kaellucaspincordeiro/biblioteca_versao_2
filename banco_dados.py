@@ -253,19 +253,26 @@ def status_emprestado_livro(id_livro):
         return dados[0]
     return None
 
-def atualizar_status_disponivel_livro(id_livro, status):
+def atualizar_status_livro(id_livro, status):
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute("UPDATE livro SET status = ? WHERE id_livro = ?", (status, id_livro,))
+    cursor.execute("""UPDATE livro SET status = ? WHERE id_livro = ?""", (status, id_livro))
 
     conn.commit()
     conn.close()
 
-def atualizar_status_livro(id_livro):
+def realizar_emprestimo(id_emprestimo):
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute("""UPDATE livro SET status = "Disponível" WHERE id_livro = ?""", (id_livro,))
+    cursor.execute("""UPDATE emprestimo SET status = "Emprestado" WHERE id_emprestimo = ?""", (id_emprestimo,))
 
+    conn.commit()
+    conn.close()
+
+def atualizar_status_emprestimo(id_emprestimo):
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute("""UPDATE emprestimo SET status = "Devolvido" WHERE id_emprestimo = ?""", (id_emprestimo,))
     conn.commit()
     conn.close()
 
@@ -293,26 +300,6 @@ def buscar_id_emprestimo(id_emprestimo):
     conn.close()
 
     return dado
-
-def status_emprestimo(id_emprestimo):
-    conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute("""SELECT status FROM emprestimo WHERE id_emprestimo = ?""", (id_emprestimo,))
-    
-    dado = cursor.fetchone()
-    conn.close()
-
-    if dado:
-        return dado[0]
-    
-    return None
-
-def atualizar_status_emprestimo(id_emprestimo):
-    conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute("""UPDATE emprestimo SET status = "Devolvido" WHERE id_emprestimo = ?""", (id_emprestimo,))
-    conn.commit()
-    conn.close()
 
 def buscar_multa(id_emprestimo):
     conn = conectar()
