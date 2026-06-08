@@ -221,7 +221,7 @@ def db_listar_multas():
                           multa.total_multa,
                           multa.data_multa
                    FROM multa
-                   INNER JOIN emprestimo ON multa.id_emprestimo = multa.id_emprestimo
+                   INNER JOIN emprestimo ON multa.id_emprestimo = emprestimo.id_emprestimo
                   """)
     dados = cursor.fetchall()
     conn.close()
