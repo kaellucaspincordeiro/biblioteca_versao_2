@@ -55,7 +55,7 @@ def montar_menu_principal():
               command=lambda: montar_tela_emprestimo(root, montar_menu_principal), 
               width=30, height=2).grid(row=6, column=0, pady=10)
               
-    tk.Button(root, text="Abrir Cadastro das Multas", 
+    tk.Button(root, text="Histórico de Multas", 
               command=lambda: montar_tela_multa(root, montar_menu_principal), 
               width=30, height=2).grid(row=7, column=0, pady=10)
     
