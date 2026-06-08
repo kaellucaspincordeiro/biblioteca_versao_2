@@ -10,7 +10,6 @@ def montar_tela_autor(container, funcao_voltar):
     # Ele fica no topo para fácil acesso
     tk.Button(container, text="← Voltar ao Menu", command=funcao_voltar, bg="#ccc").grid(row=0, column=0, sticky="w", padx=10, pady=5)
 
-
     # --- Título da Tela ---
     tk.Label(container, text="Cadastro dos Autores", font=("Arial", 14, "bold")).grid(row=0, column=0, pady=(0, 20))
     # --- Formulário de Cadastro ---
