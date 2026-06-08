@@ -82,29 +82,23 @@ def montar_tela_emprestimo(container, funcao_voltar):
     ent_emprestimo = tk.Entry(frame_emprestimo, width=40)
     ent_emprestimo.grid(row=8, column=0, pady=(0,5))
 
-    tk.Label(frame_emprestimo, text="Data da Devolução:", font=("Arial", 10, "bold")).grid(row=9, column=0, pady=(5, 2))
-    ent_devolucao = tk.Entry(frame_emprestimo, width=40)
-    ent_devolucao.grid(row=10, column=0, pady=(0,5))
-
     def salvar_emprestimo():
         nome_emprestimo = ent_nome.get()
         cliente = obter_id_cliente()
         livro = obter_id_livro()
         data_emprestimo = ent_emprestimo.get()
-        data_devolucao = ent_devolucao.get()
 
         condicao_emprestimo = (nome_emprestimo.strip() 
                                and cliente is not None 
                                and livro is not None
-                               and data_emprestimo.strip() 
-                               and data_devolucao.strip()
+                               and data_emprestimo.strip()
                               )
             
         if not condicao_emprestimo:
             messagebox.showwarning("Aviso", "Preencha todos os campos!")
             return
 
-        status_livro = bd.livro_status(livro)
+        status_livro = bd.status_emprestado_livro(livro)
 
         if status_livro != "Disponível":
             messagebox.showinfo("Atenção", "O Livro está emprestado e não pode realizar um empréstimo!")
@@ -115,44 +109,87 @@ def montar_tela_emprestimo(container, funcao_voltar):
         status_cliente = bd.procurar_status_cliente(cliente)
 
         if status_cliente == "Aluno":
-            data_dev = data_emp + timedelta(days=7)
+            dias = 7
 
         elif status_cliente == "Professor":
-            data_dev = data_emp + timedelta(days=30)
+            dias = 30
 
         else:
             messagebox.showerror("Erro", "Opção do status desse cliente é inválido!")
             return
         
-        data_dev = datetime.strptime(data_devolucao, "%d/%m/%Y")
-        
-        bd.db_cadastrar_emprestimo(nome_emprestimo, cliente, livro, data_emprestimo, data_devolucao)
-        bd.atualizar_status_emprestimo_livro(livro, "Emprestado")
+        data_dev = data_emp + timedelta(days=dias)
+        data_devolucao = data_dev.strftime("%d/%m/%Y")
 
-        messagebox.showinfo("Sucesso", f"Empréstimo cadastrado com sucesso! A devolução deste livro ficou para {data_dev}")
+        status = "Emprestado"
+        
+        bd.db_cadastrar_emprestimo(nome_emprestimo, cliente, livro, data_emprestimo, data_devolucao, status)
+        bd.atualizar_status_livro(livro, "Emprestado")
+
+        messagebox.showinfo("Sucesso", f"Empréstimo cadastrado com sucesso! A devolução deste livro ficou para {data_devolucao}")
 
         ent_nome.delete(0, tk.END)
         combo_cliente.set("")
         combo_livro.set("")
         ent_emprestimo.delete(0, tk.END)
-        ent_devolucao.delete(0, tk.END)
 
         atualizar_lista()
 
-    def devolver_livro(livro):
-            status_devolver = bd.livro_status(livro)
+    def devolver_livro():
 
-            if status_devolver == "Emprestado":
-                messagebox.showinfo("Sucesso", "Livro devolvido para a biblioteca!")
-                bd.atualizar_status_devolvido_livro(livro, "Disponível")
+        item_selecionado = tabela.selection()
+        
+        if not item_selecionado:
+            messagebox.showwarning("Aviso", "Selecione um livro para a devolução!")
+            return
+            
+        valores = tabela.item(item_selecionado[0], "values")
+        id_emprestimo = valores[0]
 
-    livro = obter_id_livro()
+        emprestimo = bd.buscar_id_emprestimo(id_emprestimo)
+
+        if emprestimo is None:
+            messagebox.showerror("Erro", "Empréstimo não encontrado!")
+            return
+        
+        id_emprestimo, id_livro, data_devolucao, status = emprestimo
+
+        if status == "Devolvido":
+            messagebox.showwarning("Aviso", "Este empréstimo foi devolvido!")
+            return
+        
+        bd.status_emprestado_para_devolvido(id_emprestimo)
+
+        previsao = datetime.strptime(data_devolucao, "%d/%m/%Y")
+        data_hoje = datetime.now()
+
+        dias_atrasos = max(0, (data_hoje - previsao).days)
+        total_multa = dias_atrasos * 2.0
+        data_multa = data_hoje.strftime("%d/%m/%Y")
+
+        if dias_atrasos > 0:
+            total_multa = dias_atrasos * 2.0
+            data_multa = data_hoje.strftime("%d/%m/%Y")
+
+            existe_multa = bd.buscar_multa(id_emprestimo)
+
+            if not existe_multa:
+
+                bd.db_cadastrar_multa(id_emprestimo, dias_atrasos, total_multa, data_multa)
+
+            messagebox.showwarning("Livro Devolvido", f"Você devolveu com prazo atrasado de {dias_atrasos} dias. Multa R$ {total_multa:.2f}")
+        else:
+            messagebox.showinfo("Livro Devolvido", "Você devolveu dentro do prazo")
+
+        bd.atualizar_status_emprestimo(id_emprestimo, "Devolvido")
+        bd.atualizar_status_livro(id_livro, "Disponível")
+
+        atualizar_lista()
     
-    tk.Button(frame_emprestimo, text="Cadastrar empréstimo", command=salvar_emprestimo, bg="green", fg="white").grid(row=11, column=0, pady=(4,5))
-    tk.Button(frame_emprestimo, text="Devolver Livro", command=devolver_livro(livro), bg="lightblue", fg="#000000").grid(row=12, column=0, pady=(4,5))
+    tk.Button(frame_emprestimo, text="Cadastrar empréstimo", command=salvar_emprestimo, bg="green", fg="white").grid(row=9, column=0, pady=(4,5))
 
     # --- Lista de Livros ---
-    tk.Label(frame_emprestimo, text="Empréstimos Cadastrados:", font=("Arial", 10, "bold")).grid(row=13, column=0, pady=(4, 5))
+    tk.Label(frame_emprestimo, text="Empréstimos Cadastrados:", font=("Arial", 10, "bold")).grid(row=10, column=0, pady=(4, 5))
     
     frame_tabela = tk.Frame(container)
     frame_tabela.grid(row=4, column=0, pady=(0,5), padx=20, sticky="nsew")
@@ -167,7 +204,7 @@ def montar_tela_emprestimo(container, funcao_voltar):
 
     tabela = ttk.Treeview(
         frame_tabela,
-        columns=("id", "nome", "cliente", "livro", "emprestimo", "devolucao"),
+        columns=("id", "nome", "cliente", "livro", "emprestimo", "devolucao", "status"),
         show="headings",
         yscrollcommand=scroll.set,
         height= 4
@@ -182,6 +219,7 @@ def montar_tela_emprestimo(container, funcao_voltar):
     tabela.heading("livro", text="Livro")
     tabela.heading("emprestimo", text="Data do Empréstimo")
     tabela.heading("devolucao", text="Data da Devolução")
+    tabela.heading("status", text="Status do Empréstimo")
 
     tabela.column("id", width=30, anchor="center")
     tabela.column("nome", width=30, anchor="center")
@@ -189,6 +227,7 @@ def montar_tela_emprestimo(container, funcao_voltar):
     tabela.column("livro", width=30, anchor="center")
     tabela.column("emprestimo", width=30, anchor="center")
     tabela.column("devolucao", width=30, anchor="center")
+    tabela.column("status", width=30, anchor="center")
 
     frame_botoes = tk.Frame(container)
     frame_botoes.grid(row=5, column=0, pady=(5, 10))
@@ -202,7 +241,7 @@ def montar_tela_emprestimo(container, funcao_voltar):
         emprestimos = bd.db_listar_emprestimos()
 
         for emp in emprestimos:           
-            tabela.insert("", "end", values=(emp[0],emp[1],emp[2],emp[3],emp[4],emp[5]))
+            tabela.insert("", "end", values=(emp[0],emp[1],emp[2],emp[3],emp[4],emp[5],emp[6]))
 
     atualizar_lista()
 
@@ -222,106 +261,6 @@ def montar_tela_emprestimo(container, funcao_voltar):
             bd.db_deletar_emprestimo(id_emp)
             atualizar_lista()
 
-    def atualizar_emprestimo():
-        item_selecionado = tabela.selection()
-        
-        if not item_selecionado:
-            messagebox.showwarning("Aviso", "Selecione um emprestimo para atualizar!")
-            return
-            
-        valores = tabela.item(item_selecionado, "values")
-        id_emp = valores[0]
-        nome_emprestimo = valores[1]
-        cliente = valores[2]
-        livro = valores[3]
-        emprestimo = valores[4]
-        devolucao = valores[5]
-
-        janela_emprestimo = tk.Toplevel(container)
-        janela_emprestimo.title("Atualizar Emprestimo")
-        janela_emprestimo.geometry("350x500")
-        janela_emprestimo.grab_set()
-        janela_emprestimo.grid_columnconfigure(0, weight=1)
-
-        tk.Label(janela_emprestimo, text="Nome do Empréstimo:").grid(row=0, column=0, pady=5)
-        ent_nome = tk.Entry(janela_emprestimo, width=40)
-        ent_nome.grid(row=1, column=0, pady=5)
-        ent_nome.insert(0, nome_emprestimo)
-
-        tk.Label(janela_emprestimo, text="Cliente:").grid(row=2, column=0, pady=5)
-        combo_cliente = ttk.Combobox(
-        janela_emprestimo,
-        values=list(mapeamento_cliente.keys()),
-        width=37,
-        state="readonly"
-        )
-        combo_cliente.grid(row=3, column=0, pady=5)
-        combo_cliente.set(cliente)
-
-        tk.Label(janela_emprestimo, text="Livro:").grid(row=4, column=0, pady=5)
-        combo_livro = ttk.Combobox(
-        janela_emprestimo,
-        values=list(mapeamento_livro.keys()),
-        width=37,
-        state="readonly"
-        )
-        combo_livro.grid(row=5, column=0, pady=5)
-        combo_livro.set(livro)
-
-        tk.Label(janela_emprestimo, text="Data do Empréstimo:").grid(row=6, column=0, pady=5)
-        ent_emprestimo = tk.Entry(janela_emprestimo, width=40)
-        ent_emprestimo.grid(row=7, column=0, pady=5)
-        ent_emprestimo.insert(0, emprestimo)
-
-        tk.Label(janela_emprestimo, text="Data da Devolução:").grid(row=8, column=0, pady=5)
-        ent_devolucao = tk.Entry(janela_emprestimo, width=40)
-        ent_devolucao.grid(row=9, column=0, pady=5)
-        ent_devolucao.insert(0, devolucao)
-
-        def salvar_atualizacao():
-            nome = ent_nome.get().strip()
-            cliente = combo_cliente.get()
-            livro = combo_livro.get()
-            emprestimo = ent_emprestimo.get().strip()
-            devolucao = ent_devolucao.get().strip()
-
-            condicao_emprestimo = (nome == ""
-                                   and cliente == ""
-                                   and livro == ""
-                                   and emprestimo == "" 
-                                   and devolucao == "" 
-                                  )
-
-            if condicao_emprestimo:
-                messagebox.showwarning("Aviso", "Preencha todos os campos!")
-                return
-
-            id_cliente = mapeamento_cliente[cliente]
-            id_livro = mapeamento_livro[livro]
-
-            bd.db_atualizar_emprestimo(
-                id_emp,
-                nome,
-                id_cliente,
-                id_livro,
-                emprestimo,
-                devolucao
-            )
-
-            messagebox.showinfo("Sucesso", "Empréstimo atualizado com sucesso!")
-            janela_emprestimo.destroy()
-            atualizar_lista()
-
-        tk.Button(
-            janela_emprestimo,
-            text="Salvar Alterações",
-            command=salvar_atualizacao,
-            bg="blue",
-            fg="white"
-        ).grid(row=10, column=0, pady=15)
-
-    atualizar_lista()
-
     tk.Button(
         frame_botoes,
         text="Excluir",
@@ -331,9 +270,9 @@ def montar_tela_emprestimo(container, funcao_voltar):
     ).grid(row=0, column=0, padx=10)
 
     tk.Button(
-        frame_botoes,
-        text="Atualizar",
-        command=atualizar_emprestimo,
-        bg="blue",
-        fg="white",
+        frame_botoes, 
+        text="Devolver Livro", 
+        command=devolver_livro, 
+        bg="lightblue", 
+        fg="#000000"
     ).grid(row=0, column=1, padx=10)
